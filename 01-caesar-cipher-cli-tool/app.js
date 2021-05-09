@@ -1,21 +1,43 @@
 const fs = require('fs');
 const path = require('path')
-const argv = require('minimist')(process.argv.slice(2));
-const { Readable, Writable, Transform, pipeline } = require('stream');
-const { encode, decode } = require('./cypher');
+const { Transform, pipeline } = require('stream');
+const { program } = require('commander');
 
+const { encode, decode } = require('./cypher');
+program.version('0.0.1');
 
 const app = () => {
-  const action = argv.a || argv.action
-  const shift = argv.s || argv.shift
-  const inputPath = argv.i || argv.input
-  const outputPath = argv.o || argv.output
+  let action = null;
+  let shift = null;
+  let inputPath = null;
+  let outputPath = null;
 
-  if (shift !== parseInt(shift)) {
-    process.stderr.write(`Shift must be an integer`)
-    process.exit(1)
+  program
+  .requiredOption('-a, --action <type>', 'encode or decode')
+  .requiredOption('-s, --shift <number>', 'shift integer')
+  .option('-i, --input <path>', 'input file path')
+  .option('-o, --output <path>', 'output file path');
+
+  program.parse(process.argv);
+
+  const options = program.opts();
+  if (options.action) {
+    action = options.action;
   }
-
+  if (options.shift) {
+    shift = parseInt(options.shift, 10);
+    if (isNaN(shift)) {
+      process.stderr.write("Shift must be an integer");
+      process.exit(1)
+    }
+  }
+  if (options.input) {
+    inputPath = options.input;
+  }
+  if (options.output) {
+    outputPath = options.output
+  }
+  
   class EncodeTransform extends Transform {
     constructor(options) {
       super(options)
@@ -46,7 +68,7 @@ const app = () => {
     }
   }
 
-  if (action && shift && inputPath && outputPath) {
+  if (action && inputPath && outputPath) {
 
     const inputFilename = path.resolve(__dirname, inputPath)
     const readStream = fs.createReadStream(inputFilename)
@@ -79,14 +101,14 @@ const app = () => {
             process.stderr.write(e)
             process.exit(1)
           } else {
-            console.log("The file was successfully encoded")
+            console.log("The file was successfully decoded")
           }
         })
         break;
       default:
         return process.stderr.write("No such action. Only 'encode' and 'decode' are supported.")
     }
-  } else if (action && shift && inputPath) {
+  } else if (action && inputPath) {
       const inputFilename = path.resolve(__dirname, inputPath)
       const readStream = fs.createReadStream(inputFilename)
 
@@ -115,7 +137,7 @@ const app = () => {
               process.stderr.write(e)
               process.exit(1)
             } else {
-              console.log("The file was successfully encoded")
+              console.log("The file was successfully decoded")
             }
           })
           break;
@@ -123,7 +145,7 @@ const app = () => {
           return process.stderr.write("No such action. Only 'encode' and 'decode' are supported.")
       }
   
-  } else if (action && shift && outputPath) {
+  } else if (action && outputPath) {
 
     const outputFilename = path.resolve(__dirname, outputPath)
     const writeStream = fs.createWriteStream(outputFilename, {flags: 'a'})
@@ -163,10 +185,7 @@ const app = () => {
           return process.stderr.write("No such action. Only 'encode' and 'decode' are supported.")
       }
 
-  } else if (action && shift) {
-
-      const encodeTransform = new EncodeTransform();
-      const decodeTransform = new DecodeTransform();
+  } else if (action) {
 
       const readable = process.stdin;
 
