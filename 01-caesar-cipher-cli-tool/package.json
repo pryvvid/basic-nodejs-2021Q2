@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "my_caesar_cli": "index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -w",
-    "cypher": "node index.js --action encode --shift 7 --input encode.txt --output encoded.txt"
+    "dev": "nodemon -w"
   },
   "keywords": [],
   "author": "",

@@ -7,7 +7,7 @@ const isLowerCase = (string) => {
 }
 
 const encode = (message, shift) => {
-  if (shift === undefined) shift = 0;
+  shift = parseInt(shift, 10);
   if (shift === 0) return message;
 
   const splittedMessage = message.split('')
@@ -36,7 +36,7 @@ const encode = (message, shift) => {
 }
 
 const decode = (message, shift) => {
-  if (shift == undefined) shift = 0;
+  shift = parseInt(shift, 10);
   if (shift === 0) return message;
 
   const splittedMessage = message.split('')
@@ -63,10 +63,5 @@ const decode = (message, shift) => {
 
   return encodedMessage
 }
-
-// const cypheredMessage = 'This is encoded "Hello world"!'
-// console.log(encode('This is encoded "Hello world"!', 27))
-
-// console.log(decode('Uijt jt fodpefe "Ifmmp xpsme"!', 27))
 
 module.exports = { encode, decode }
