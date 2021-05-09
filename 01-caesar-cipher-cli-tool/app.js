@@ -26,7 +26,7 @@ const app = () => {
   }
   if (options.shift) {
     shift = parseInt(options.shift, 10);
-    if (isNaN(shift)) {
+    if (isNaN(shift) || options.shift != shift) {
       process.stderr.write("Shift must be an integer");
       process.exit(1)
     }
